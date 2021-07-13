@@ -11,15 +11,37 @@ d3.json(usgs_url).then(function(data) {
 function createFeatures(earthquakeData) {
     function onEachFeature (feature, layer) {
         layer.bindPopup("<h3>" + feature.properties.place +
-        "</h3><hr><p>" + new Date(feature.properties.time)+ "</p>");
-    }
+        "</h3><hr><p>" + new Date(feature.properties.time)+ "</p>"
+        + "<hr><p>" + "Magnitude:" + feature.properties.mag + "</p>" )
+    };
 
     var earthquakes = L.geoJSON(earthquakeData, {
-        onEachFeature: onEachFeature
-});
+        pointToLayer: function(feature) {
+            var latlng = [feature.geometry.coordinates[1], feature.geometry.coordinates[0]]
+            return new L.CircleMarker(latlng, {
+              restyle});
+        },
+        style: restyle,
+        onEachFeature: onEachFeature});
+    
+    createMap(earthquakes);
+    
+    function restyle(feature) {
+        var size1 = feature.properties.mag**2;
+        if (feature.geometry.coordinates[2] < 15)
+            {return {color: "Beige", radius: [size1]};
+        }else if (feature.geometry.coordinates[2] < 40)
+            {return {color: "Bisque", radius: [size1]};
+        }else if (feature.geometry.coordinates[2] < 60)
+            {return {color: "BurlyWood", radius: [size1]};
+        }else if (feature.geometry.coordinates[2] < 80)
+            {return {color: "Peru", radius: [size1]};
+        }else {
+            return {color: "SaddleBrown", radius: [size1]};
+            };
+        };
 
-createMap(earthquakes);
-}
+    };
 
 function createMap(earthquakes) {
     var light = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
@@ -39,11 +61,33 @@ function createMap(earthquakes) {
 
     var myMap = L.map("map", {
         center: [
-          39.8283, -98.5795
+          0, 0
         ],
         zoom: 2,
         layers: [light, earthquakes]
       });
     
-      L.control.layers(baseMaps, overlayMaps, {collapsed: true}).addTo(myMap);
+    L.control.layers(baseMaps, overlayMaps, {collapsed: true}).addTo(myMap);
+
+    var legend = L.control({position: 'bottomright'})
+    legend.onAdd = function(map) {
+        var div = L.DomUtil.create("div", "info legend");
+        var colors = ["Beige", "Bisque", "BurlyWood", "Peru", "SaddleBrown"]
+        var labels = ["-10 to 14", "15 to 39", "40 to 59", "60 to 79", "80+"];
+    
+        // Add legend title
+        var legendInfo = "<h2>Earthquake Focus Depth</h2>"
+        div.innerHTML = legendInfo;
+    
+        for (var i=0; i < 5; i++) {         
+            labels.push("<li style=\"background-color: " + colors[i] + "\"></li>");
+        };
+
+        div.innerHTML += "<ul>" + labels.join("") + "</ul>";
+        return div;
+      };
+    
+      // Adding legend to the map
+    legend.addTo(myMap);
+    
 };

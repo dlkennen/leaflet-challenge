@@ -8,6 +8,7 @@ d3.json(usgs_url).then(function(data) {
     createFeatures(data.features);
 });
 
+//Function to create map and circle markers
 function createFeatures(earthquakeData) {
     function onEachFeature (feature, layer) {
         layer.bindPopup("<h3>" + feature.properties.place +
@@ -26,6 +27,7 @@ function createFeatures(earthquakeData) {
     
     createMap(earthquakes);
     
+    //Styling the size and color of the circle markers
     function restyle(feature) {
         var size1 = feature.properties.mag**2;
         if (feature.geometry.coordinates[2] < 15)
@@ -43,6 +45,7 @@ function createFeatures(earthquakeData) {
 
     };
 
+//Creating the map
 function createMap(earthquakes) {
     var light = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
@@ -69,25 +72,31 @@ function createMap(earthquakes) {
     
     L.control.layers(baseMaps, overlayMaps, {collapsed: true}).addTo(myMap);
 
+    //Creating the color based legend
     var legend = L.control({position: 'bottomright'})
     legend.onAdd = function(map) {
         var div = L.DomUtil.create("div", "info legend");
         var colors = ["Beige", "Bisque", "BurlyWood", "Peru", "SaddleBrown"]
-        var labels = ["-10 to 14", "15 to 39", "40 to 59", "60 to 79", "80+"];
+        var labels = []
+        var values = ["-10 to 14", "15 to 39", "40 to 59", "60 to 79", "80+"];
     
         // Add legend title
         var legendInfo = "<h2>Earthquake Focus Depth</h2>"
         div.innerHTML = legendInfo;
     
         for (var i=0; i < 5; i++) {         
-            labels.push("<li style=\"background-color: " + colors[i] + "\"></li>");
+            labels.push(`<p> 
+            <p style="background-color:${colors[i]}; height: 10px; width: 10px; display: inline; padding: 5px 10px"></p>
+            &nbsp; <span>${values[i]}</span> 
+            </p> 
+            `)
         };
 
-        div.innerHTML += "<ul>" + labels.join("") + "</ul>";
+        div.innerHTML += "<div>" + labels.join("") + "</div>";
         return div;
       };
     
-      // Adding legend to the map
+    // Adding legend to the map
     legend.addTo(myMap);
     
 };

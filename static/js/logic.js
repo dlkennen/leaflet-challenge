@@ -1,4 +1,5 @@
 //Mapping HW Diana Kennen
+//Leaflet Challenge Level 1
 
 //Link to major earthquakes 4.5+ from the last 30 days
 var usgs_url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson"
